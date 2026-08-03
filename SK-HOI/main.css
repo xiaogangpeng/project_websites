@@ -1,0 +1,751 @@
+
+/* ================= DESIGN TOKENS (DARK THEME) ================= */
+:root {
+    /* Base surfaces */
+    --bg: #08080b;
+    --bg-elevated: #101014;
+    --surface: #16161c;
+    --surface-2: #1c1c24;
+
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    /* Text */
+    --text-primary: #f3f3f6;
+    --text-secondary: #b3b3bf;
+    --text-tertiary: #7c7c88;
+
+    /* Brand accent — bright indigo/violet, tuned for contrast on dark */
+    --accent: #8183f4;
+    --accent-strong: #6a6cf0;
+    --accent-soft: rgba(129, 131, 244, 0.14);
+
+    --text-color: var(--text-primary);
+
+    /* Elevation (dark: mostly depth via black shadow + hairline border) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 20px 40px -20px rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --radius-pill: 999px;
+
+    --max-width: 1040px;
+    --transition-speed: 0.6s;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ================= GLOBAL STYLES ================= */
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg);
+    margin: 0;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+a { text-decoration: none; color: inherit; transition: color 0.2s ease; }
+a:hover { color: var(--accent); }
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ================= SCROLL ANIMATIONS ================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity var(--transition-speed) var(--ease), transform var(--transition-speed) var(--ease);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ================= HEADER ================= */
+header {
+    padding: 88px 0 48px;
+    text-align: center;
+}
+
+h1 {
+    margin: 0 0 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.title {
+    font-size: clamp(1.8rem, 1.1rem + 2vw, 2.75rem);
+    line-height: 1.22;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.authors {
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.authors span { margin: 0 8px; }
+.authors a { color: var(--text-primary); font-weight: 600; border-bottom: 1px solid transparent; }
+.authors a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+.affiliations {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    margin-bottom: 32px;
+}
+
+/* ================= BUTTONS ================= */
+.link-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--text-primary);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.btn i { font-size: 0.85em; opacity: 0.75; }
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: #ffffff;
+    color: var(--bg);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    box-shadow: none;
+}
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--accent);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+/* ================= TEASER (COMPARISON SLIDER) ================= */
+.teaser-section {
+    margin-bottom: 72px;
+    position: relative;
+}
+
+.teaser-media {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: #000;
+    border: 1px solid var(--border);
+}
+
+.teaser-media img,
+.teaser-media video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teaser-media-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 0.95rem;
+    background: repeating-linear-gradient(45deg, #0c0c10, #0c0c10 12px, #131318 12px, #131318 24px);
+}
+.teaser-media-placeholder i { font-size: 2rem; }
+
+.teaser-caption {
+    margin-top: 16px;
+    text-align: left;
+    color: var(--text-tertiary);
+    font-size: 0.92rem;
+}
+.teaser-caption strong { color: var(--text-primary); }
+
+/* ================= SECTIONS ================= */
+.section-title {
+    text-align: center;
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 32px;
+    position: relative;
+    display: block;
+    color: var(--text-primary);
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 3px;
+    background: var(--accent);
+    margin: 14px auto 0;
+    border-radius: var(--radius-pill);
+}
+
+section.reveal { margin: 64px 0; }
+
+.abstract-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px 40px;
+    border-radius: var(--radius-md);
+    font-size: 1.02rem;
+    line-height: 1.75;
+    text-align: left;
+    color: var(--text-secondary);
+}
+
+/* ================= METHOD / PIPELINE ================= */
+.method-diagram {
+    background: #fff;
+    padding: 28px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+}
+
+.method-diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+/* ================= CONTACT PREDICTION VISUALIZATION ================= */
+.contact-viz-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+/* .teaser-media defaults to a fixed 500px hero height — too tall at
+   half-width, so give this pair its own aspect-ratio instead. */
+.contact-viz-media {
+    height: auto;
+    aspect-ratio: 4 / 3;
+}
+
+@media (max-width: 768px) {
+    .contact-viz-grid { grid-template-columns: 1fr; }
+}
+
+/* ================= RESULTS CAROUSEL ================= */
+.results-section { margin: 64px 0; }
+
+.results-intro {
+    text-align: center;
+    margin: -12px 0 28px;
+    color: var(--text-tertiary);
+    font-size: 0.95rem;
+}
+
+.results-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.results-tab {
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.results-tab:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.results-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Carousel viewport + track */
+.carousel { position: relative; }
+
+.carousel-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    cursor: grab;
+    padding: 6px 4px 20px;
+}
+.carousel-viewport::-webkit-scrollbar { display: none; }
+.carousel-viewport.dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+}
+
+.result-card {
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+    width: 420px;
+    max-width: 82vw;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+.result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+}
+
+.result-card .media-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: #000;
+}
+
+.result-card video,
+.result-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+.result-card .media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    background: repeating-linear-gradient(45deg, #0c0c10, #0c0c10 12px, #131318 12px, #131318 24px);
+    font-size: 0.85rem;
+}
+.result-card .media-placeholder i { font-size: 1.6rem; }
+
+.result-card .ds-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 12px;
+    background: rgba(8, 8, 11, 0.75);
+    backdrop-filter: blur(4px);
+    color: var(--text-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    z-index: 2;
+}
+
+.result-card .card-caption {
+    padding: 16px 18px;
+    background: var(--surface);
+    color: var(--text-tertiary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+}
+.result-card .card-caption strong { color: var(--text-primary); }
+
+/* Nav arrows */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+}
+.carousel-btn:hover { transform: translateY(-50%) scale(1.06); border-color: var(--accent); }
+.carousel-btn.prev { left: -16px; }
+.carousel-btn.next { right: -16px; }
+.carousel-btn:disabled { opacity: 0.35; pointer-events: none; cursor: not-allowed; box-shadow: none; }
+
+/* Progress dots */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+.carousel-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.carousel-dots .dot.active {
+    background: var(--accent);
+    width: 20px;
+    border-radius: var(--radius-pill);
+}
+
+@media (max-width: 768px) {
+    .carousel-btn { display: none; }
+    .result-card { width: 300px; }
+}
+
+/* ================= BASELINE COMPARISON ================= */
+.comparison-section { margin: 64px 0; }
+
+/* One independent sliding window per dataset benchmark */
+.comparison-benchmark { margin-bottom: 56px; }
+.comparison-benchmark:last-child { margin-bottom: 0; }
+
+.comparison-benchmark-title {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 18px;
+    padding: 5px 16px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+}
+
+/* The base .carousel-viewport has 4px of horizontal padding (so fixed-width
+   Results cards can peek at their neighbor) — zero it out here so full-width
+   comparison slides sit flush with no sliver of the next one showing. */
+.comparison-viewport {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Track holds one full-width slide per example — no peeking, no gap */
+.comparison-track {
+    gap: 0;
+    width: auto;
+}
+
+.comparison-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    scroll-snap-align: center;
+}
+
+.comparison-caption {
+    margin-bottom: 14px;
+    text-align: left;
+    color: var(--text-tertiary);
+    font-size: 0.92rem;
+}
+.comparison-caption strong { color: var(--text-primary); }
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), 1fr);
+    gap: 20px;
+}
+
+.comparison-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.2s var(--ease), border-color 0.2s ease;
+}
+.comparison-tile:hover { transform: translateY(-3px); }
+
+.comparison-tile.is-ours {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.comparison-tile .media-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+}
+
+.comparison-tile video,
+.comparison-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.comparison-tile .media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 8px;
+    background: repeating-linear-gradient(45deg, #0c0c10, #0c0c10 12px, #131318 12px, #131318 24px);
+}
+.comparison-tile .media-placeholder i { font-size: 1.3rem; }
+
+.comparison-tile .method-label {
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border);
+}
+.comparison-tile.is-ours .method-label {
+    color: #fff;
+    background: var(--accent);
+    border-top-color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    /* Horizontal paging already happens one level up (between examples),
+       so within a slide the tiles just stack in a compact 2-col grid. */
+    .comparison-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ================= CITATION ================= */
+.citation {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    padding: 24px 28px;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    position: relative;
+    border: 1px solid var(--border);
+}
+
+.copy-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.copy-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--accent); }
+
+footer {
+    text-align: center;
+    padding: 48px 0;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+}
+
+/* ================= INTRO OVERLAY ================= */
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    transition: transform 1.0s var(--ease);
+    transform-origin: top;
+    background: #000;
+}
+
+#bg-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.video-overlay-tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.35) 0%,
+        rgba(0,0,0,0.8) 100%
+    );
+    z-index: 1;
+}
+
+.intro-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    padding: 20px;
+    max-width: min(90vw, 980px);
+
+    animation: fadeUp 0.9s var(--ease) 0.3s backwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.teaser-title {
+    font-size: clamp(1.6rem, 0.95rem + 2vw, 2.6rem);
+    margin: 0 0 14px 0;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+}
+
+p.subtitle {
+    font-size: clamp(1rem, 0.85rem + 0.6vw, 1.3rem);
+    font-weight: 400;
+    margin-bottom: 44px;
+    color: rgba(255,255,255,0.65);
+}
+
+/* Enter Button (Glass Style) */
+#enter-btn {
+    padding: 14px 40px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+#enter-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -10px rgba(129, 131, 244, 0.5);
+}
+
+/* --- MAIN APP (Behind) --- */
+#main-app {
+    position: absolute; inset: 0; background: var(--bg);
+    z-index: 1;
+}
+
+/* --- STATES --- */
+body.entered #intro-overlay {
+    transform: translateY(-100%);
+    pointer-events: none;
+}
+
+/* Mobile Adjustment */
+@media (max-width: 768px) {
+    header { padding: 64px 0 36px; }
+    .abstract-content { padding: 28px 24px; }
+    .teaser-media { height: 320px; }
+}
+
+/* Background Canvas Styling */
+#bg-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}

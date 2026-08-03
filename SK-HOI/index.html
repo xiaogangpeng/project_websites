@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surface Keypoint Representation for Multi-Object and Articulated Human-Object Interaction Generation</title>
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+
+    <!-- Import Three.js from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- === INTRO OVERLAY === -->
+    <div id="intro-overlay">
+        
+        <!-- 1. The Video -->
+        <video id="bg-video" autoplay loop muted playsinline>
+            <!-- Replace with your actual video path (e.g., ./assets/teaser.mp4) -->
+            <!-- <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4"> -->
+            <source src="assets/Entry_Video.mp4" type="video/mp4">
+        </video>
+
+        <!-- 2. The Dark Gradient (Enhances text readability) -->
+        <div class="video-overlay-tint"></div>
+
+        <!-- 3. The Text & Button -->
+        <div class="intro-content">
+            <h1 class="teaser-title">Surface Keypoint Representation for Multi-Object and Articulated Human-Object Interaction Generation</h1>
+            <p class="subtitle">High-Fidelity Human Animation via Diffusion Models</p>
+            
+            <button id="enter-btn">
+                <span class="btn-text">Enter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- === MAIN APP === -->
+    <div id="main-app">
+        <!-- Header Section -->
+        <div class="container">
+        <canvas id="bg-canvas"></canvas>
+            <header class="reveal">
+                <h1 class="title">Surface Keypoint Representation for Multi-Object and Articulated Human-Object Interaction Generation</h1>
+                
+                <div class="authors">
+                    <a href="http://xiaogangpeng.github.io/">Xiaogang Peng</a><sup>1</sup>, 
+                    <a href="https://show-han.github.io/">Zeyu Han</a><sup>1</sup>, 
+                    <a href="https://cr8br0ze.github.io/">Zichong Meng</a><sup>1</sup>, 
+                    <a href="https://ymingxie.github.io/">Yiming Xie</a><sup>1</sup>, 
+                    <a href="https://gr.xjtu.edu.cn/zhujh/">Jihua Zhu</a><sup>2</sup>,
+                    <a href="https://www.ganghua.org/">Gang Hua</a><sup>3</sup>,
+                    <a href="https://jianghz.me/">Huaizu Jiang</a><sup>1</sup>
+                </div>
+
+                <div class="affiliations">
+                    <span>1. Northeastern University</span> &nbsp;&nbsp;
+                    <span>2. Xi'an Jiaotong University</span> &nbsp;&nbsp;
+                    <span>3. Amazon</span>
+                </div>
+
+                <div class="link-buttons">
+                    <a href="#" class="btn"><i class="fa-solid fa-file-pdf"></i> Paper</a>
+                    <a href="#" class="btn"><i class="fa-brands fa-github"></i> Code</a>
+                    <a href="#" class="btn btn-secondary"><i class="fa-solid fa-database"></i> Dataset</a>
+                    <a href="#" class="btn btn-secondary"><i class="fa-brands fa-youtube"></i> Video</a>
+                </div>
+            </header>
+
+            <!-- Teaser Section -->
+            <section class="teaser-section reveal">
+                <div class="teaser-media">
+          
+                    <img src="assets/elements/teaser_figure_w_text.jpg" alt="Teaser">
+                        <!-- <video src="assets/teaser.mp4" autoplay loop muted playsinline></video>  -->
+          
+                    <!-- <div class="teaser-media-placeholder">
+                        <i class="fa-solid fa-photo-film"></i>
+                        <span>Insert Teaser Figure / Video Here</span>
+                    </div> -->
+                </div>
+                <div class="teaser-caption">
+                    <strong>Figure 1: Our approach enables:</strong> (a) whole-body interaction of a variable number of rigid objects from text prompts; (b) interaction with articulated objects exhibiting diverse joint dynamics (e.g., laptop, drawers, and knobs); and (c) text-driven whole-body motion synthesis guided by sparse object waypoints or full object motion trajectories.
+                </div>
+            </section>
+
+            <!-- Abstract -->
+            <section class="reveal">
+                <h2 class="section-title">Abstract</h2>
+                <div class="abstract-content">
+                    <p>
+                       Daily activities require humans to coordinate whole-body motion with the motion of surrounding objects. Despite recent progress in human-object interaction (HOI) generation, most existing methods assume interactions with a single rigid object and do not extend well to scenarios involving a variable number of objects or articulated objects with diverse joint mechanisms. We propose surface keypoint trajectories as an object motion representation: for each rigid component, whether a standalone object or one part of an articulated assembly, we track a small set of non-collinear surface points over time. This representation handles multi-object coordination and diverse articulation mechanisms directly from point dynamics without requiring explicit joint-type specification. To model when and where each body region contacts each object, we introduce a spatio-temporal contact distance field that extends distance-based contact modeling to whole-body, multi-object, and articulated settings. We factorize HOI generation into three stages: generating object motions from text or waypoints, predicting the contact distance field, and synthesizing whole-body motion with contact-guided optimization. Experiments on ParaHome, HIMO, ARCTIC, and OMOMO demonstrate better or comparable performance to existing methods across single-object, multi-object, and articulated interaction settings.
+                </div>
+            </section>
+
+            <!-- Methodology -->
+            <section class="reveal">
+                <h2 class="section-title">Methodology</h2>
+                <div class="method-diagram">
+                    <img src="assets/elements/framework_v4.1.png" alt="Method overview diagram">
+                </div>
+                <p class="teaser-caption">
+                    <strong>Figure 2: Framework Overview.</strong> Our pipeline consists of three stages. <strong>Stage 1 (Object Motion Generation)</strong> employs an object-motion diffusion model <em>f</em><sup>o</sup> to generate object surface keypoint trajectories conditioned on the initial HOI state, the text prompt, and object geometry encoded with Basis Point Sets (BPS). <strong>Stage 2 (Contact Distance Field Prediction)</strong> uses a diffusion model <em>f</em><sup>c</sup> to predict a human&ndash;object contact distance field based on the generated object motion, the text prompt, and the object geometry. <strong>Stage 3 (Body Motion Synthesis)</strong> applies a marker-motion diffusion model <em>f</em><sup>h</sup> to synthesize the final human motion conditioned on the text prompt, the generated object motion, and the predicted contact distance field. We further perform contact optimization to alleviate contact and penetration artifacts, and finally recover the human and object meshes.
+                </p>
+            </section>
+
+
+            <!-- Results Carousel -->
+            <section class="reveal results-section">
+                <h2 class="section-title">Results Gallery</h2>
+                <p class="results-intro">
+                    Qualitative results across datasets. Filter by dataset and swipe / drag to explore more.
+                </p>
+
+                <!-- Dataset filter tabs (populated by JS) -->
+                <div class="results-tabs" id="results-tabs"></div>
+
+                <!-- Horizontal carousel -->
+                <div class="carousel">
+                    <button class="carousel-btn prev" id="carousel-prev" aria-label="Previous">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <div class="carousel-viewport" id="carousel-viewport">
+                        <div class="carousel-track" id="carousel-track"></div>
+                    </div>
+
+                    <button class="carousel-btn next" id="carousel-next" aria-label="Next">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="carousel-dots" id="carousel-dots"></div>
+            </section>
+
+            <!-- Baseline Comparison -->
+            <section class="reveal comparison-section">
+                <h2 class="section-title">Comparison with Baselines</h2>
+                <p class="results-intro">
+                    Qualitative comparison against baseline methods on four benchmarks. Each benchmark is its own swipeable window — drag to see more examples.
+                </p>
+
+                <!-- One independent carousel per dataset benchmark, built entirely by JS
+                     from DEFAULT_COMPARISON_METHODS / COMPARISON_BENCHMARKS below. -->
+                <div class="comparison-benchmarks" id="comparison-benchmarks"></div>
+            </section>
+
+            <!-- Contact Prediction Visualization -->
+            <section class="reveal">
+                <h2 class="section-title">Contact Prediction Visualization</h2>
+                <p class="results-intro">
+                    Visualization of the predicted human&ndash;object contact distance field. Line color encodes distance: red marks points in direct contact, pink marks points that are close but not touching, and the absence of a line indicates the points are far apart.
+                </p>
+
+                <!-- Two fixed video slots, populated by JS from CONTACT_VIZ_ITEMS below. -->
+                <div class="contact-viz-grid" id="contact-viz-grid"></div>
+            </section>
+
+            <!-- Citation -->
+            <section class="reveal">
+                <h2 class="section-title">Citation</h2>
+                <div class="citation">
+                    <button class="copy-btn" onclick="copyCitation()">Copy</button>
+                    <pre id="bibtex">@inproceedings{doe2025deepmotion,
+    title={Deep Learning for Human Motion Prediction},
+    author={Doe, Jane and Smith, John and Johnson, Alice},
+    booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year={2025}
+    }</pre>
+                </div>
+            </section>
+
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Project Name. All rights reserved. <br> Template was initially created by Google Gemini3.</p>
+        </footer>
+    </div>
+    <!-- Logic Script -->
+    <script type="module">
+        import { ParticleNetwork } from './particle.js';
+
+        // Initialize
+        const network = new ParticleNetwork('bg-canvas', {
+                    count: 60,              // How many particles
+                    color: '#c7c7d1',       // Particle color (subtle neutral)
+                    connectionDist: 140     // Distance to draw lines
+                });
+
+        // Start Animation
+        network.start();
+
+        
+        // 1. Get Elements
+        const btn = document.getElementById('enter-btn');
+        const btnText = btn.querySelector('.btn-text');
+
+        // 2. Define what happens when clicking Enter
+        btn.addEventListener('click', () => {
+            // Add 'entered' class to body -> Triggers CSS slide up
+            document.body.classList.add('entered');
+            
+            // Optional: If you have a video in the teaser, pause it to save performance
+            const video = document.querySelector('.teaser-media');
+            if(video) video.pause();
+        });
+
+        // 3. Simulate Data Loading (Replace this with your actual loading logic)
+        // In your real code, put this inside .then() of your file loader
+        function onDataLoaded() {
+            
+            // Slight delay to make sure UI doesn't flicker too fast
+            setTimeout(() => {
+                // A. Enable Button
+                btn.disabled = false;
+                
+                // B. Update Text
+                btnText.innerText = "Explore Project";
+                
+                // C. Update Styles
+                document.body.classList.add('data-ready');
+            }, 100); 
+        }
+        // // For testing right now, just call it automatically:
+        onDataLoaded();
+
+
+        // 1. Scroll Reveal Animation
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); // Trigger once on load
+
+        // 2. Copy Citation
+        function copyCitation() {
+            const text = document.getElementById('bibtex').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            });
+        }
+
+        // ============================================================
+        // LAZY VIDEO PLAYBACK
+        // ------------------------------------------------------------
+        // The Results and Comparison sections can easily have dozens of
+        // <video autoplay> clips in the DOM at once (every card in every
+        // carousel, on/off screen). Browsers cap how many videos can
+        // decode concurrently, so past that cap some clips silently stop
+        // loading/playing. Instead, a video's `src` is only attached (and
+        // playback started) once its card scrolls into view, and released
+        // again once it scrolls out — so only what's actually on screen
+        // is ever decoding.
+        // ============================================================
+        const lazyVideoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    if (video.dataset.src && video.getAttribute("src") !== video.dataset.src) {
+                        video.src = video.dataset.src;
+                    }
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                    if (video.hasAttribute("src")) {
+                        video.removeAttribute("src");
+                        video.load();
+                    }
+                }
+            });
+        }, { rootMargin: "200px", threshold: 0.1 });
+
+        function registerLazyVideo(video, src) {
+            video.dataset.src = src;
+            video.preload = "none";
+            lazyVideoObserver.observe(video);
+        }
+
+        // ============================================================
+        // CONTACT PREDICTION VISUALIZATION
+        // ------------------------------------------------------------
+        // Two fixed side-by-side video slots. Leave `src` empty ("") to
+        // show a placeholder card.
+        // ============================================================
+        const CONTACT_VIZ_ITEMS = [
+            { src: "assets/videos/contact_viz/s48_0002_contact_270.mp4", caption: "<strong>Example 1.</strong> Sit on the chair." },
+            { src: "assets/videos/contact_viz/s182_0029_contact_270.mp4", caption: "<strong>Example 2.</strong> Open cabinet." },
+        ];
+
+        (function initContactViz() {
+            const grid = document.getElementById("contact-viz-grid");
+            if (!grid) return;
+
+            function placeholder() {
+                const p = document.createElement("div");
+                p.className = "teaser-media-placeholder";
+                p.innerHTML = '<i class="fa-solid fa-photo-film"></i><span>Insert Contact Prediction Video Here</span>';
+                return p;
+            }
+
+            CONTACT_VIZ_ITEMS.forEach(item => {
+                const wrap = document.createElement("div");
+                wrap.className = "contact-viz-item";
+
+                const media = document.createElement("div");
+                media.className = "teaser-media contact-viz-media";
+
+                if (item.src) {
+                    const v = document.createElement("video");
+                    v.muted = true; v.loop = true;
+                    v.playsInline = true; v.setAttribute("playsinline", "");
+                    v.addEventListener("error", () => { v.replaceWith(placeholder()); });
+                    media.appendChild(v);
+                    registerLazyVideo(v, item.src);
+                } else {
+                    media.appendChild(placeholder());
+                }
+
+                wrap.appendChild(media);
+
+                if (item.caption) {
+                    const cap = document.createElement("p");
+                    cap.className = "teaser-caption";
+                    cap.innerHTML = item.caption;
+                    wrap.appendChild(cap);
+                }
+
+                grid.appendChild(wrap);
+            });
+        })();
+
+        // ============================================================
+        // RESULTS CAROUSEL
+        // ------------------------------------------------------------
+        // To add a result, drop a video/image into assets/videos/<Dataset>/
+        // and add an entry below. `src` can be an .mp4/.webm or an image.
+        // Leave `src` empty ("") to show a styled placeholder card.
+        // ============================================================
+        const RESULTS_DATA = [
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/ours_s161_0010.mp4", caption: "<strong>Move book from shelf to table.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/ours_s182_0029.mp4", caption: "<strong>Open cabinet.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/ours_s22_0006.mp4",  caption: "<strong>Move cup from table to desk.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s11_0007.mp4",  caption: "<strong>Look at book.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s15_0007.mp4",  caption: "<strong>Drink from cup.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/ours_s207_0011.mp4", caption: "<strong>Take out STH from drawer.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s33_0008.mp4",  caption: "<strong>Cut ingredients on cutting board.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s48_0002.mp4",  caption: "<strong>Sit on chair.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s49_0020.mp4",  caption: "<strong>Open pot lid.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s56_0010.mp4",  caption: "<strong>Close cabinet.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s56_0017.mp4",  caption: "<strong>Move book from desk to bookshelf.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s60_0013.mp4",  caption: "<strong>Close washing machine.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s61_0023.mp4",  caption: "<strong>Close laptop.</strong>" },
+            { dataset: "Parahome", src: "assets/videos/more_results/parahome_dataset/s71_0014.mp4",  caption: "<strong>Turn on gas stove.</strong>" },
+            { dataset: "ARCTIC",   src: "assets/videos/more_results/arctic_dataset/s05_laptop_use_02.mp4",   caption: "<strong>Bimanual manipulation.</strong> Reconstructed hand–object interaction." },
+            { dataset: "ARCTIC",   src: "assets/videos/more_results/arctic_dataset/s05_microwave_use_01.mp4",   caption: "<strong>Dexterous grasp.</strong> Temporally consistent contact recovery." },
+            { dataset: "ARCTIC",   src: "assets/videos/more_results/arctic_dataset/s05_mixer_use_01.mp4",   caption: "<strong>Dexterous grasp.</strong> Temporally consistent contact recovery." },
+            { dataset: "HIMO",     src: "assets/videos/more_results/himo_dataset/2o_test_414.mp4",     caption: "<strong>Whole-body interaction.</strong> Human manipulating multiple objects." },
+            { dataset: "HIMO",     src: "assets/videos/more_results/himo_dataset/3o_test_14.mp4",     caption: "<strong>Sequential task.</strong> Long-horizon motion prediction." },
+            { dataset: "OMOMO",    src: "assets/videos/more_results/omomo_dataset/sub16_plasticbox_011.mp4",    caption: "<strong>Large-object manipulation.</strong> Full-body coordination." },
+            { dataset: "OMOMO",    src: "assets/videos/more_results/omomo_dataset/sub17_floorlamp_002.mp4",    caption: "<strong>Contact-rich motion.</strong> Plausible hand placement." },
+            { dataset: "OMOMO",    src: "assets/videos/more_results/omomo_dataset/sub17_suitcase_000.mp4",    caption: "<strong>Contact-rich motion.</strong> Plausible hand placement." },
+        ];
+
+        (function initCarousel() {
+            const tabsEl     = document.getElementById("results-tabs");
+            const trackEl    = document.getElementById("carousel-track");
+            const viewportEl = document.getElementById("carousel-viewport");
+            const prevBtn    = document.getElementById("carousel-prev");
+            const nextBtn    = document.getElementById("carousel-next");
+            const dotsEl     = document.getElementById("carousel-dots");
+            if (!trackEl) return;
+
+            const datasets = ["All", ...Array.from(new Set(RESULTS_DATA.map(d => d.dataset)))];
+            let activeFilter = "All";
+
+            // ---- Build filter tabs ----
+            datasets.forEach(ds => {
+                const b = document.createElement("button");
+                b.className = "results-tab" + (ds === activeFilter ? " active" : "");
+                b.textContent = ds;
+                b.addEventListener("click", () => {
+                    activeFilter = ds;
+                    tabsEl.querySelectorAll(".results-tab").forEach(t => t.classList.remove("active"));
+                    b.classList.add("active");
+                    renderCards();
+                });
+                tabsEl.appendChild(b);
+            });
+
+            // ---- Build a card ----
+            function makeCard(item) {
+                const card = document.createElement("div");
+                card.className = "result-card";
+
+                const media = document.createElement("div");
+                media.className = "media-wrap";
+
+                const badge = document.createElement("span");
+                badge.className = "ds-badge";
+                badge.textContent = item.dataset;
+                media.appendChild(badge);
+
+                const isVideo = /\.(mp4|webm|mov)$/i.test(item.src || "");
+                if (item.src && isVideo) {
+                    const v = document.createElement("video");
+                    v.muted = true; v.loop = true;
+                    v.playsInline = true; v.setAttribute("playsinline", "");
+                    // If the file is missing, swap in a placeholder
+                    v.addEventListener("error", () => { v.replaceWith(placeholder(item)); });
+                    media.appendChild(v);
+                    registerLazyVideo(v, item.src);
+                } else if (item.src) {
+                    const img = document.createElement("img");
+                    img.src = item.src; img.alt = item.dataset;
+                    img.addEventListener("error", () => { img.replaceWith(placeholder(item)); });
+                    media.appendChild(img);
+                } else {
+                    media.appendChild(placeholder(item));
+                }
+
+                card.appendChild(media);
+
+                if (item.caption) {
+                    const cap = document.createElement("div");
+                    cap.className = "card-caption";
+                    cap.innerHTML = item.caption;
+                    card.appendChild(cap);
+                }
+                return card;
+            }
+
+            function placeholder(item) {
+                const p = document.createElement("div");
+                p.className = "media-placeholder";
+                p.innerHTML = `<i class="fa-solid fa-film"></i><span>${item.dataset} result</span>`;
+                return p;
+            }
+
+            // ---- Render cards for current filter ----
+            function renderCards() {
+                trackEl.innerHTML = "";
+                const items = RESULTS_DATA.filter(d => activeFilter === "All" || d.dataset === activeFilter);
+                items.forEach(item => trackEl.appendChild(makeCard(item)));
+                viewportEl.scrollLeft = 0;
+                buildDots();
+                updateControls();
+            }
+
+            // ---- Dots (one per card) ----
+            function buildDots() {
+                dotsEl.innerHTML = "";
+                const cards = trackEl.children;
+                for (let i = 0; i < cards.length; i++) {
+                    const dot = document.createElement("button");
+                    dot.className = "dot";
+                    dot.addEventListener("click", () => scrollToCard(i));
+                    dotsEl.appendChild(dot);
+                }
+            }
+
+            function cardStep() {
+                const first = trackEl.children[0];
+                if (!first) return 1;
+                const gap = parseInt(getComputedStyle(trackEl).gap) || 20;
+                return first.getBoundingClientRect().width + gap;
+            }
+
+            function scrollToCard(i) {
+                viewportEl.scrollTo({ left: i * cardStep(), behavior: "smooth" });
+            }
+
+            function currentIndex() {
+                return Math.round(viewportEl.scrollLeft / cardStep());
+            }
+
+            function updateControls() {
+                const maxScroll = viewportEl.scrollWidth - viewportEl.clientWidth;
+                prevBtn.disabled = viewportEl.scrollLeft <= 2;
+                nextBtn.disabled = viewportEl.scrollLeft >= maxScroll - 2;
+
+                const idx = currentIndex();
+                Array.from(dotsEl.children).forEach((d, i) => d.classList.toggle("active", i === idx));
+            }
+
+            // ---- Arrow buttons ----
+            prevBtn.addEventListener("click", () => viewportEl.scrollBy({ left: -cardStep(), behavior: "smooth" }));
+            nextBtn.addEventListener("click", () => viewportEl.scrollBy({ left:  cardStep(), behavior: "smooth" }));
+            viewportEl.addEventListener("scroll", updateControls, { passive: true });
+            window.addEventListener("resize", updateControls);
+
+            // ---- Drag / swipe to scroll ----
+            let isDown = false, startX = 0, startScroll = 0, moved = false;
+            viewportEl.addEventListener("pointerdown", (e) => {
+                isDown = true; moved = false;
+                startX = e.clientX;
+                startScroll = viewportEl.scrollLeft;
+                viewportEl.classList.add("dragging");
+                viewportEl.setPointerCapture(e.pointerId);
+            });
+            viewportEl.addEventListener("pointermove", (e) => {
+                if (!isDown) return;
+                const dx = e.clientX - startX;
+                if (Math.abs(dx) > 4) moved = true;
+                viewportEl.scrollLeft = startScroll - dx;
+            });
+            const endDrag = (e) => {
+                if (!isDown) return;
+                isDown = false;
+                viewportEl.classList.remove("dragging");
+                // Snap to nearest card after a free drag
+                scrollToCard(currentIndex());
+            };
+            viewportEl.addEventListener("pointerup", endDrag);
+            viewportEl.addEventListener("pointercancel", endDrag);
+            // Prevent click navigation right after a drag
+            viewportEl.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+            renderCards();
+        })();
+
+        // ============================================================
+        // BASELINE COMPARISON
+        // ------------------------------------------------------------
+        // DEFAULT_COMPARISON_METHODS defines the columns used by any
+        // benchmark that doesn't specify its own `methods` (min 2, max 5
+        // — extras beyond 5 are ignored). Mark a method with isOurs: true
+        // to highlight its column.
+        //
+        // COMPARISON_BENCHMARKS is one entry per dataset. Each dataset
+        // gets its own independent sliding window and its own method list
+        // — set `methods` on a benchmark to override the default (e.g.
+        // when that dataset only has certain baselines available).
+        // `examples` inside a benchmark can hold one or many example
+        // groups to swipe through. Every example's `clips` maps a method
+        // name (must match that benchmark's methods) to its video/image —
+        // leave one out (or "") to show a placeholder.
+        // ============================================================
+        const DEFAULT_COMPARISON_METHODS = [
+            { name: "CHOIS" },
+            { name: "HOI-Diff" },
+            { name: "ROG" },
+            { name: "HOIDiNi" },
+            { name: "Ours", isOurs: true },
+        ];
+
+        const COMPARISON_BENCHMARKS = [
+            {
+                dataset: "OMOMO",
+                examples: [
+                    {
+                        caption: "<strong>Single-object manipulation.</strong> Lift the large box with both hands, move the large box.",
+                        clips: {
+                            "CHOIS": "assets/videos/compare/omomo_dataset/chois.mp4",
+                            "HOI-Diff": "assets/videos/compare/omomo_dataset/hoidiff.mp4",
+                            "ROG": "assets/videos/compare/omomo_dataset/rog.mp4",
+                            "HOIDiNi": "assets/videos/compare/omomo_dataset/hoidini.mp4",
+                            "Ours": "assets/videos/compare/omomo_dataset/ours.mp4",
+                        }
+                    },
+                ]
+            },
+            {
+                dataset: "HIMO",
+                // This benchmark only has these two baselines available.
+                methods: [
+                    { name: "HIMO-Gen" },
+                    { name: "Ours", isOurs: true },
+                ],
+                examples: [
+                    {
+                        caption: "<strong>Multi-object manipulation.</strong> A person picks up pyramid-L with his left hand and places it on the cube-L.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/himo_dataset/himo_gen_01.mp4",
+                            "Ours": "assets/videos/compare/himo_dataset/ours_01.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Multi-object manipulation.</strong> A person picks up the banana with his left hand and places it into the trashcan.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/himo_dataset/himo_gen_02.mp4",
+                            "Ours": "assets/videos/compare/himo_dataset/ours_02.mp4",
+                        }
+                    },
+                ]
+            },
+            {
+                dataset: "ARCTIC",
+                methods: [
+                    { name: "CoDA" },
+                    { name: "Ours", isOurs: true },
+                ],
+                examples: [
+                    {
+                        caption: "<strong>Bimanual articulated manipulation.</strong> Use the laptop.",
+                        clips: {
+                            "CoDA": "assets/videos/compare/arctic_dataset/coda_01.mp4",
+                            "Ours": "assets/videos/more_results/arctic_dataset/s05_laptop_use_02.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Bimanual articulated manipulation.</strong> Use the mixer.",
+                        clips: {
+                            "CoDA": "assets/videos/compare/arctic_dataset/coda_02.mp4",
+                            "Ours": "assets/videos/more_results/arctic_dataset/s05_mixer_use_01.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Bimanual articulated manipulation.</strong> Use the microwave.",
+                        clips: {
+                            "CoDA": "assets/videos/compare/arctic_dataset/coda_03.mp4",
+                            "Ours": "assets/videos/more_results/arctic_dataset/s05_microwave_use_01.mp4",
+                        }
+                    },
+                ]
+            },
+            {
+                dataset: "Parahome",
+                methods: [
+                    { name: "HIMO-Gen" },
+                    { name: "Ours", isOurs: true },
+                ],
+                examples: [
+                    {
+                        caption: "<strong>Multi-object manipulation.</strong> Move cup from table to desk.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/parahome_dataset/himo_s22_0006.mp4",
+                            "Ours": "assets/videos/more_results/parahome_dataset/ours_s22_0006.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Multi-object manipulation.</strong> Move book from shelf to table.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/parahome_dataset/himo_s161_0010.mp4",
+                            "Ours": "assets/videos/more_results/parahome_dataset/ours_s161_0010.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Articulated manipulation.</strong> Open cabinet.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/parahome_dataset/himo_s182_0029.mp4",
+                            "Ours": "assets/videos/more_results/parahome_dataset/ours_s182_0029.mp4",
+                        }
+                    },
+                    {
+                        caption: "<strong>Articulated manipulation.</strong> Take out STH from drawer.",
+                        clips: {
+                            "HIMO-Gen": "assets/videos/compare/parahome_dataset/himo_s207_0011.mp4",
+                            "Ours": "assets/videos/more_results/parahome_dataset/ours_s207_0011.mp4",
+                        }
+                    },                                                           
+                ]
+            },
+        ];
+
+        (function initComparison() {
+            const root = document.getElementById("comparison-benchmarks");
+            if (!root) return;
+
+            function placeholder(name) {
+                const p = document.createElement("div");
+                p.className = "media-placeholder";
+                p.innerHTML = `<i class="fa-solid fa-film"></i><span>${name}</span>`;
+                return p;
+            }
+
+            function makeTile(name, src, isOurs) {
+                const tile = document.createElement("div");
+                tile.className = "comparison-tile" + (isOurs ? " is-ours" : "");
+
+                const media = document.createElement("div");
+                media.className = "media-wrap";
+
+                const isVideo = /\.(mp4|webm|mov)$/i.test(src || "");
+                if (src && isVideo) {
+                    const v = document.createElement("video");
+                    v.muted = true; v.loop = true;
+                    v.playsInline = true; v.setAttribute("playsinline", "");
+                    v.addEventListener("error", () => { v.replaceWith(placeholder(name)); });
+                    media.appendChild(v);
+                    registerLazyVideo(v, src);
+                } else if (src) {
+                    const img = document.createElement("img");
+                    img.src = src; img.alt = name;
+                    img.addEventListener("error", () => { img.replaceWith(placeholder(name)); });
+                    media.appendChild(img);
+                } else {
+                    media.appendChild(placeholder(name));
+                }
+
+                const label = document.createElement("div");
+                label.className = "method-label";
+                label.textContent = name;
+
+                tile.appendChild(media);
+                tile.appendChild(label);
+                return tile;
+            }
+
+            // One slide = one example = every method's tile together, so the
+            // whole grid moves as a single unit when swiping between examples.
+            // `methods` is that benchmark's own list (may differ per dataset).
+            function makeSlide(example, methods) {
+                const slide = document.createElement("div");
+                slide.className = "comparison-slide";
+
+                if (example.caption) {
+                    const cap = document.createElement("div");
+                    cap.className = "comparison-caption";
+                    cap.innerHTML = example.caption;
+                    slide.appendChild(cap);
+                }
+
+                const grid = document.createElement("div");
+                grid.className = "comparison-grid";
+                // Cap at 3 columns so tiles stay legible — 4th/5th method wraps to a new row.
+                grid.style.setProperty("--cols", Math.min(methods.length, 3));
+
+                methods.forEach(m => {
+                    grid.appendChild(makeTile(m.name, example.clips[m.name] || "", !!m.isOurs));
+                });
+
+                slide.appendChild(grid);
+                return slide;
+            }
+
+            // Wires drag/buttons/dots for one independent carousel instance
+            // (each benchmark gets its own — they don't share scroll state).
+            function wireCarousel(trackEl, viewportEl, prevBtn, nextBtn, dotsEl) {
+                function buildDots() {
+                    dotsEl.innerHTML = "";
+                    Array.from(trackEl.children).forEach((_, i) => {
+                        const dot = document.createElement("button");
+                        dot.className = "dot";
+                        dot.addEventListener("click", () => scrollToSlide(i));
+                        dotsEl.appendChild(dot);
+                    });
+                }
+
+                function slideStep() {
+                    const first = trackEl.children[0];
+                    if (!first) return 1;
+                    const gap = parseInt(getComputedStyle(trackEl).gap) || 0;
+                    return first.getBoundingClientRect().width + gap;
+                }
+
+                function scrollToSlide(i) {
+                    viewportEl.scrollTo({ left: i * slideStep(), behavior: "smooth" });
+                }
+
+                function currentIndex() {
+                    return Math.round(viewportEl.scrollLeft / slideStep());
+                }
+
+                function updateControls() {
+                    const maxScroll = viewportEl.scrollWidth - viewportEl.clientWidth;
+                    prevBtn.disabled = viewportEl.scrollLeft <= 2;
+                    nextBtn.disabled = viewportEl.scrollLeft >= maxScroll - 2;
+
+                    const idx = currentIndex();
+                    Array.from(dotsEl.children).forEach((d, i) => d.classList.toggle("active", i === idx));
+                }
+
+                prevBtn.addEventListener("click", () => viewportEl.scrollBy({ left: -slideStep(), behavior: "smooth" }));
+                nextBtn.addEventListener("click", () => viewportEl.scrollBy({ left:  slideStep(), behavior: "smooth" }));
+                viewportEl.addEventListener("scroll", updateControls, { passive: true });
+                window.addEventListener("resize", updateControls);
+
+                let isDown = false, startX = 0, startScroll = 0, moved = false;
+                viewportEl.addEventListener("pointerdown", (e) => {
+                    isDown = true; moved = false;
+                    startX = e.clientX;
+                    startScroll = viewportEl.scrollLeft;
+                    viewportEl.classList.add("dragging");
+                    viewportEl.setPointerCapture(e.pointerId);
+                });
+                viewportEl.addEventListener("pointermove", (e) => {
+                    if (!isDown) return;
+                    const dx = e.clientX - startX;
+                    if (Math.abs(dx) > 4) moved = true;
+                    viewportEl.scrollLeft = startScroll - dx;
+                });
+                const endDrag = () => {
+                    if (!isDown) return;
+                    isDown = false;
+                    viewportEl.classList.remove("dragging");
+                    scrollToSlide(currentIndex());
+                };
+                viewportEl.addEventListener("pointerup", endDrag);
+                viewportEl.addEventListener("pointercancel", endDrag);
+                viewportEl.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+                buildDots();
+                updateControls();
+            }
+
+            // Builds one full "dataset window": title + its own carousel.
+            // Uses the benchmark's own `methods` if given, else the default.
+            function makeBenchmark(benchmark) {
+                const methods = (benchmark.methods || DEFAULT_COMPARISON_METHODS).slice(0, 5);
+                if (methods.length < 2) {
+                    console.warn(`Benchmark "${benchmark.dataset}" needs at least 2 methods — skipped.`);
+                    return null;
+                }
+
+                const wrap = document.createElement("div");
+                wrap.className = "comparison-benchmark";
+
+                const title = document.createElement("h3");
+                title.className = "comparison-benchmark-title";
+                title.textContent = benchmark.dataset;
+                wrap.appendChild(title);
+
+                const carousel = document.createElement("div");
+                carousel.className = "carousel";
+
+                const prevBtn = document.createElement("button");
+                prevBtn.className = "carousel-btn prev";
+                prevBtn.setAttribute("aria-label", "Previous");
+                prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+
+                const viewport = document.createElement("div");
+                viewport.className = "carousel-viewport comparison-viewport";
+
+                const track = document.createElement("div");
+                track.className = "carousel-track comparison-track";
+                benchmark.examples.forEach(ex => track.appendChild(makeSlide(ex, methods)));
+                viewport.appendChild(track);
+
+                const nextBtn = document.createElement("button");
+                nextBtn.className = "carousel-btn next";
+                nextBtn.setAttribute("aria-label", "Next");
+                nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+
+                carousel.appendChild(prevBtn);
+                carousel.appendChild(viewport);
+                carousel.appendChild(nextBtn);
+
+                const dots = document.createElement("div");
+                dots.className = "carousel-dots";
+
+                wrap.appendChild(carousel);
+                wrap.appendChild(dots);
+
+                wireCarousel(track, viewport, prevBtn, nextBtn, dots);
+                return wrap;
+            }
+
+            COMPARISON_BENCHMARKS
+                .filter(b => b.examples && b.examples.length)
+                .forEach(b => {
+                    const el = makeBenchmark(b);
+                    if (el) root.appendChild(el);
+                });
+        })();
+
+    </script>
+</body>
+</html>
