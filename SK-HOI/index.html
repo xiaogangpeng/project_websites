@@ -22,11 +22,11 @@
         }
     </script>
 </head>
-<body>
+<body class="scroll-locked">
 
     <!-- === INTRO OVERLAY === -->
     <div id="intro-overlay">
-        
+
         <!-- 1. The Video -->
         <video id="bg-video" autoplay loop muted playsinline>
             <!-- Replace with your actual video path (e.g., ./assets/teaser.mp4) -->
@@ -37,14 +37,15 @@
         <!-- 2. The Dark Gradient (Enhances text readability) -->
         <div class="video-overlay-tint"></div>
 
-        <!-- 3. The Text & Button -->
+        <!-- 3. The Text -->
         <div class="intro-content">
             <h1 class="teaser-title">Surface Keypoint Representation for Multi-Object and Articulated Human-Object Interaction Generation</h1>
             <p class="subtitle">High-Fidelity Human Animation via Diffusion Models</p>
-            
-            <button id="enter-btn">
-                <span class="btn-text">Enter</span>
-            </button>
+
+            <div class="scroll-hint" aria-hidden="true">
+                <span>Scroll to explore</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
         </div>
     </div>
 
@@ -75,8 +76,8 @@
                 <div class="link-buttons">
                     <a href="#" class="btn"><i class="fa-solid fa-file-pdf"></i> Paper</a>
                     <a href="#" class="btn"><i class="fa-brands fa-github"></i> Code</a>
-                    <a href="#" class="btn btn-secondary"><i class="fa-solid fa-database"></i> Dataset</a>
-                    <a href="#" class="btn btn-secondary"><i class="fa-brands fa-youtube"></i> Video</a>
+                    <!-- <a href="#" class="btn btn-secondary"><i class="fa-solid fa-database"></i> Dataset</a> -->
+                    <a href="#" class="btn"><i class="fa-brands fa-youtube"></i> Video</a>
                 </div>
             </header>
 
@@ -204,35 +205,65 @@
         network.start();
 
         
-        // 1. Get Elements
-        const btn = document.getElementById('enter-btn');
-        const btnText = btn.querySelector('.btn-text');
+        // 1. Enter the site on scroll/swipe — triggered once and only once.
+        const introOverlay = document.getElementById('intro-overlay');
 
-        // 2. Define what happens when clicking Enter
-        btn.addEventListener('click', () => {
+        function enterSite() {
+            if (document.body.classList.contains('entered')) return;
+            if (!document.body.classList.contains('data-ready')) return; // still loading
+
             // Add 'entered' class to body -> Triggers CSS slide up
             document.body.classList.add('entered');
-            
-            // Optional: If you have a video in the teaser, pause it to save performance
-            const video = document.querySelector('.teaser-media');
-            if(video) video.pause();
-        });
 
-        // 3. Simulate Data Loading (Replace this with your actual loading logic)
+            // Keep the page scroll-locked (pinned at the top) for the entire
+            // slide-up animation, not just until 'entered' is added — otherwise
+            // a fast/continuous scroll gesture keeps scrolling the real page
+            // underneath while the overlay is still animating away, and you
+            // land mid-page instead of at the top once it's gone. This runs
+            // unconditionally, before anything else below that could throw.
+            const unlock = () => document.body.classList.remove('scroll-locked');
+            introOverlay.addEventListener('transitionend', unlock, { once: true });
+            setTimeout(unlock, 1100); // fallback in case transitionend doesn't fire
+
+            // Optional: if the teaser holds a video, pause it to save performance
+            // (it currently holds an image, so this is a no-op — kept for when
+            // a real video gets swapped in).
+            const video = document.querySelector('.teaser-media video');
+            if (video) video.pause();
+        }
+
+        // Scroll (wheel) to enter — prevent the underlying page from actually
+        // scrolling first, so the revealed content starts at the top.
+        window.addEventListener('wheel', (e) => {
+            if (document.body.classList.contains('entered')) return;
+            if (e.deltaY > 15) {
+                e.preventDefault();
+                enterSite();
+            }
+        }, { passive: false });
+
+        // Swipe up to enter (touch devices)
+        let touchStartY = null;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (document.body.classList.contains('entered') || touchStartY === null) return;
+            const dy = touchStartY - e.touches[0].clientY;
+            if (dy > 30) {
+                e.preventDefault();
+                enterSite();
+            }
+        }, { passive: false });
+
+        // 2. Simulate Data Loading (Replace this with your actual loading logic)
         // In your real code, put this inside .then() of your file loader
         function onDataLoaded() {
-            
             // Slight delay to make sure UI doesn't flicker too fast
             setTimeout(() => {
-                // A. Enable Button
-                btn.disabled = false;
-                
-                // B. Update Text
-                btnText.innerText = "Explore Project";
-                
-                // C. Update Styles
                 document.body.classList.add('data-ready');
-            }, 100); 
+            }, 100);
         }
         // // For testing right now, just call it automatically:
         onDataLoaded();

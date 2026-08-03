@@ -695,29 +695,25 @@ p.subtitle {
     color: rgba(255,255,255,0.65);
 }
 
-/* Enter Button (Glass Style) */
-#enter-btn {
-    padding: 14px 40px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: white;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    transition: all 0.25s var(--ease);
+/* Scroll hint — the only way to enter is scroll/swipe, no button */
+.scroll-hint {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.72rem;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
+    animation: scrollHintBounce 2s ease-in-out infinite;
 }
+.scroll-hint i { font-size: 0.85rem; }
 
-#enter-btn:hover {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px -10px rgba(129, 131, 244, 0.5);
+@keyframes scrollHintBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.45; }
+    50% { transform: translateY(6px); opacity: 0.9; }
 }
 
 /* --- MAIN APP (Behind) --- */
@@ -730,6 +726,13 @@ p.subtitle {
 body.entered #intro-overlay {
     transform: translateY(-100%);
     pointer-events: none;
+}
+
+/* Pins the real page at the top while the intro is showing/animating away,
+   so a fast scroll gesture can't scroll the content underneath before the
+   overlay finishes sliding off. Removed by JS once the transition ends. */
+body.scroll-locked {
+    overflow: hidden;
 }
 
 /* Mobile Adjustment */
